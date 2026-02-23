@@ -1,14 +1,19 @@
 const COLOR_MAP = {
-    TRANSPORT: 'bg-blue-100 text-blue-700',
-    EQUIPMENT: 'bg-emerald-100 text-emerald-700',
-    SHIPMENT: 'bg-purple-100 text-purple-700',
+    TRANSPORT: { background: 'rgba(59, 130, 246, 0.15)', color: '#60a5fa' },
+    EQUIPMENT: { background: 'rgba(16, 185, 129, 0.15)', color: '#34d399' },
+    SHIPMENT: { background: 'rgba(139, 92, 246, 0.15)', color: '#a78bfa' },
 }
 
+const DEFAULT_STYLE = { background: 'rgba(0,0,0,0.04)', color: 'var(--text-secondary)' }
+
 export default function EventBadge({ code, eventType }) {
-    const colorClass = COLOR_MAP[eventType] || 'bg-gray-100 text-gray-600'
+    const colorStyle = COLOR_MAP[eventType] || DEFAULT_STYLE
 
     return (
-        <span className={`inline-block px-2 py-0.5 rounded text-xs font-semibold tracking-wide ${colorClass}`}>
+        <span
+            className="inline-block px-2 py-0.5 rounded-md text-xs font-semibold tracking-wide"
+            style={colorStyle}
+        >
             {code}
         </span>
     )

@@ -88,33 +88,32 @@ export default function TrackingScreen({ auth, onDisconnect }) {
 
         const fullJson = JSON.stringify(result, null, 2)
 
+        const preStyle = {
+            background: '#f8fafc',
+            border: '1px solid var(--border-glass)',
+            borderRadius: '12px',
+            padding: '16px',
+            fontSize: '11px',
+            fontFamily: "'JetBrains Mono', 'Fira Code', 'Cascadia Code', monospace",
+            color: '#475569',
+            whiteSpace: 'pre-wrap',
+            wordBreak: 'break-word',
+        }
+
         if (selectedEventIndex === null || rawEvents.length === 0) {
-            return (
-                <pre className="bg-[#f5f7fa] border border-gray-200 rounded-md p-4 text-xs font-mono text-gray-700 whitespace-pre-wrap break-words">
-                    {fullJson}
-                </pre>
-            )
+            return <pre style={preStyle}>{fullJson}</pre>
         }
 
         const eventId = findEventIdForIndex(selectedEventIndex)
         if (!eventId) {
-            return (
-                <pre className="bg-[#f5f7fa] border border-gray-200 rounded-md p-4 text-xs font-mono text-gray-700 whitespace-pre-wrap break-words">
-                    {fullJson}
-                </pre>
-            )
+            return <pre style={preStyle}>{fullJson}</pre>
         }
 
         // Find the event block in the original JSON by searching for its event_id
-        // The event_id appears as: "event_id": "xxxx"
         const idMarker = `"event_id": "${eventId}"`
         const idPos = fullJson.indexOf(idMarker)
         if (idPos === -1) {
-            return (
-                <pre className="bg-[#f5f7fa] border border-gray-200 rounded-md p-4 text-xs font-mono text-gray-700 whitespace-pre-wrap break-words">
-                    {fullJson}
-                </pre>
-            )
+            return <pre style={preStyle}>{fullJson}</pre>
         }
 
         // Walk backwards from idPos to find the opening { of this event object
@@ -138,13 +137,19 @@ export default function TrackingScreen({ auth, onDisconnect }) {
         const after = fullJson.slice(braceEnd)
 
         return (
-            <pre className="bg-[#f5f7fa] border border-gray-200 rounded-md p-4 text-xs font-mono text-gray-700 whitespace-pre-wrap break-words">
+            <pre style={preStyle}>
                 {before}
                 <span
                     ref={(el) => {
                         if (el) el.scrollIntoView({ behavior: 'smooth', block: 'center' })
                     }}
-                    className="bg-amber-100 border-l-2 border-amber-400 -ml-px pl-px"
+                    style={{
+                        background: 'rgba(59, 130, 246, 0.3)',
+                        borderLeft: '3px solid #3b82f6',
+                        marginLeft: '-2px',
+                        paddingLeft: '4px',
+                        borderRadius: '4px',
+                    }}
                 >
                     {match}
                 </span>
@@ -154,18 +159,30 @@ export default function TrackingScreen({ auth, onDisconnect }) {
     }
 
     return (
-        <div className="h-screen bg-[#f5f7fa] flex flex-col overflow-hidden">
+        <div className="min-h-screen flex flex-col" style={{ background: 'linear-gradient(145deg, var(--bg-primary), var(--bg-secondary))' }}>
             {/* Navigation Bar */}
-            <nav className="bg-white border-b border-gray-200 px-6 py-3 flex items-center justify-between shrink-0">
-                <span className="text-lg font-bold text-[#1a3c6e] tracking-tight">Oceanio Tracker</span>
+            <nav className="px-6 py-3 flex items-center justify-between shrink-0"
+                style={{
+                    background: 'rgba(255, 255, 255, 0.85)',
+                    borderBottom: '1px solid var(--border-glass)',
+                    backdropFilter: 'blur(12px)',
+                }}>
+                <span className="text-lg font-bold tracking-tight"
+                    style={{ fontFamily: "'Outfit', sans-serif", background: 'var(--gradient-brand)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>
+                    Oceanio Tracker
+                </span>
                 <div className="flex items-center gap-4">
-                    <div className="flex items-center gap-1.5 text-xs text-gray-500">
-                        <span className="w-2 h-2 rounded-full bg-emerald-500 inline-block" />
+                    <div className="flex items-center gap-1.5 text-xs" style={{ color: 'var(--text-secondary)' }}>
+                        <span className="w-2 h-2 rounded-full bg-emerald-500 inline-block"
+                            style={{ animation: 'pulse-glow 2s ease-in-out infinite' }} />
                         Connected
                     </div>
                     <button
                         onClick={onDisconnect}
-                        className="text-xs text-gray-400 hover:text-red-500 transition-colors cursor-pointer"
+                        className="text-xs transition-colors duration-200 cursor-pointer"
+                        style={{ color: 'var(--text-muted)' }}
+                        onMouseEnter={(e) => e.target.style.color = '#f87171'}
+                        onMouseLeave={(e) => e.target.style.color = 'var(--text-muted)'}
                     >
                         Disconnect
                     </button>
@@ -173,10 +190,10 @@ export default function TrackingScreen({ auth, onDisconnect }) {
             </nav>
 
             {/* Search Section */}
-            <div className="bg-white border-b border-gray-200 shrink-0">
+            <div className="shrink-0" style={{ borderBottom: '1px solid var(--border-glass)', background: 'rgba(255, 255, 255, 0.5)' }}>
                 <div className="max-w-4xl mx-auto px-6 pt-5 pb-6">
                     {/* Tabs */}
-                    <div className="flex gap-6 border-b border-gray-200 mb-5">
+                    <div className="flex gap-1 mb-5 p-1 rounded-xl" style={{ background: 'rgba(0,0,0,0.03)' }}>
                         {TABS.map((tab) => (
                             <button
                                 key={tab.key}
@@ -186,39 +203,74 @@ export default function TrackingScreen({ auth, onDisconnect }) {
                                     setResult(null)
                                     setSelectedEventIndex(null)
                                 }}
-                                className={`pb-2.5 text-sm font-medium transition-colors relative cursor-pointer ${activeTab === tab.key
-                                    ? 'text-[#1a3c6e]'
-                                    : 'text-gray-400 hover:text-gray-600'
-                                    }`}
+                                className="flex-1 py-2 text-sm font-medium rounded-lg transition-all duration-300 cursor-pointer"
+                                style={{
+                                    background: activeTab === tab.key ? 'var(--gradient-brand)' : 'transparent',
+                                    color: activeTab === tab.key ? '#ffffff' : 'var(--text-muted)',
+                                    boxShadow: activeTab === tab.key ? '0 2px 8px rgba(59, 130, 246, 0.3)' : 'none',
+                                }}
                             >
                                 {tab.label}
-                                {activeTab === tab.key && (
-                                    <span className="absolute bottom-0 left-0 right-0 h-0.5 bg-[#1a3c6e] rounded-full" />
-                                )}
                             </button>
                         ))}
                     </div>
 
-                    {/* Input + Button */}
-                    <form onSubmit={handleTrack}>
-                        <input
-                            type="text"
-                            value={reference}
-                            onChange={(e) => setReference(e.target.value)}
-                            placeholder={currentTab?.placeholder}
-                            className="w-full px-4 py-2.5 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-[#1a3c6e]/30 focus:border-[#1a3c6e] transition-colors"
-                        />
+                    {/* Input + Button (inline) */}
+                    <form onSubmit={handleTrack} className="flex gap-3">
+                        <div className="flex-1 relative">
+                            <span className="absolute left-3.5 top-1/2 -translate-y-1/2" style={{ color: 'var(--text-muted)' }}>
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                                    <circle cx="11" cy="11" r="8" /><line x1="21" y1="21" x2="16.65" y2="16.65" />
+                                </svg>
+                            </span>
+                            <input
+                                type="text"
+                                value={reference}
+                                onChange={(e) => setReference(e.target.value)}
+                                placeholder={currentTab?.placeholder}
+                                className="w-full pl-10 pr-4 py-3 rounded-xl text-sm transition-all duration-200 outline-none"
+                                style={{
+                                    background: 'rgba(255,255,255,0.9)',
+                                    border: '1px solid var(--border-glass)',
+                                    color: 'var(--text-primary)',
+                                }}
+                                onFocus={(e) => { e.target.style.borderColor = 'rgba(59,130,246,0.5)'; e.target.style.boxShadow = '0 0 0 3px rgba(59,130,246,0.1)'; }}
+                                onBlur={(e) => { e.target.style.borderColor = 'var(--border-glass)'; e.target.style.boxShadow = 'none'; }}
+                            />
+                        </div>
                         <button
                             type="submit"
                             disabled={loading}
-                            className="w-full mt-3 bg-[#1a3c6e] text-white py-2.5 rounded-md text-sm font-semibold hover:bg-[#15325c] transition-colors disabled:opacity-60 cursor-pointer disabled:cursor-not-allowed"
+                            className="px-8 py-3 rounded-xl text-sm font-semibold text-white transition-all duration-300 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed shrink-0"
+                            style={{
+                                background: loading ? 'rgba(0,0,0,0.08)' : 'var(--gradient-btn)',
+                                boxShadow: loading ? 'none' : '0 4px 15px rgba(59, 130, 246, 0.25)',
+                            }}
+                            onMouseEnter={(e) => { if (!loading) { e.target.style.background = 'var(--gradient-btn-hover)'; e.target.style.boxShadow = '0 6px 20px rgba(59, 130, 246, 0.4)'; } }}
+                            onMouseLeave={(e) => { if (!loading) { e.target.style.background = 'var(--gradient-btn)'; e.target.style.boxShadow = '0 4px 15px rgba(59, 130, 246, 0.3)'; } }}
                         >
-                            {loading ? 'Tracking...' : 'Track Shipment'}
+                            {loading ? (
+                                <span className="inline-flex items-center gap-2">
+                                    <svg className="w-4 h-4" style={{ animation: 'spin 1s linear infinite' }} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                                        <path d="M21 12a9 9 0 1 1-6.219-8.56" />
+                                    </svg>
+                                    Tracking...
+                                </span>
+                            ) : 'Track Shipment'}
                         </button>
                     </form>
 
                     {error && (
-                        <div className="mt-3 text-sm text-red-600 bg-red-50 border border-red-200 rounded-md px-3 py-2">
+                        <div className="mt-3 text-sm rounded-xl px-4 py-3 flex items-start gap-2"
+                            style={{
+                                background: 'rgba(239, 68, 68, 0.1)',
+                                border: '1px solid rgba(239, 68, 68, 0.2)',
+                                color: '#dc2626',
+                                animation: 'slideUp 0.3s ease-out',
+                            }}>
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="shrink-0 mt-0.5" style={{ color: '#f87171' }}>
+                                <circle cx="12" cy="12" r="10" /><line x1="15" y1="9" x2="9" y2="15" /><line x1="9" y1="9" x2="15" y2="15" />
+                            </svg>
                             {error}
                         </div>
                     )}
@@ -227,11 +279,12 @@ export default function TrackingScreen({ auth, onDisconnect }) {
 
             {/* Results Section — two scrollable panels */}
             {result && (
-                <div className="flex-1 flex max-w-7xl mx-auto w-full min-h-0 overflow-hidden">
+                <div className="flex max-w-7xl mx-auto w-full" style={{ animation: 'fadeIn 0.4s ease-out', height: '100vh' }}>
                     {/* Left: DCSA View — scrollable box */}
-                    <div className="flex-1 flex flex-col border-r border-gray-200 min-h-0">
+                    <div className="flex-1 flex flex-col min-h-0" style={{ borderRight: '1px solid var(--border-glass)' }}>
                         <div className="px-6 pt-4 pb-2 shrink-0">
-                            <h2 className="text-xs font-semibold text-gray-400 uppercase tracking-wider">
+                            <h2 className="text-xs font-semibold uppercase tracking-wider"
+                                style={{ color: 'var(--text-muted)', fontFamily: "'Outfit', sans-serif" }}>
                                 Shipment Events (DCSA)
                             </h2>
                         </div>
@@ -247,13 +300,17 @@ export default function TrackingScreen({ auth, onDisconnect }) {
                     {/* Right: Raw JSON — scrollable box */}
                     <div className="flex-1 flex flex-col min-h-0">
                         <div className="px-6 pt-4 pb-2 shrink-0 flex items-center justify-between">
-                            <h2 className="text-xs font-semibold text-gray-400 uppercase tracking-wider">
+                            <h2 className="text-xs font-semibold uppercase tracking-wider"
+                                style={{ color: 'var(--text-muted)', fontFamily: "'Outfit', sans-serif" }}>
                                 Raw API Response
                             </h2>
                             {selectedEventIndex !== null && (
                                 <button
                                     onClick={() => setSelectedEventIndex(null)}
-                                    className="text-xs text-gray-400 hover:text-gray-600 cursor-pointer"
+                                    className="text-xs cursor-pointer transition-colors duration-200"
+                                    style={{ color: 'var(--text-muted)' }}
+                                    onMouseEnter={(e) => e.target.style.color = 'var(--text-secondary)'}
+                                    onMouseLeave={(e) => e.target.style.color = 'var(--text-muted)'}
                                 >
                                     Clear selection
                                 </button>
