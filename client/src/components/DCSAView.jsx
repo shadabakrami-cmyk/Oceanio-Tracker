@@ -1,6 +1,6 @@
 import { normalizeResponse } from '../utils/normalizeResponse'
 
-// ─── DCSA Event Type Code → Human-Readable Label ──────────────────────────────
+// DCSA Event Type Code mappings
 const EVENT_CODE_LABELS = {
     ARRI: 'Arrived',
     DEPA: 'Departed',
@@ -28,6 +28,7 @@ const EVENT_CODE_LABELS = {
     TRSH: 'Transshipped',
 }
 
+// Leg type labels
 const LEG_TYPE_LABELS = {
     PRE_SHIPMENT: 'Pre-Shipment',
     PRE_OCEAN: 'Pre-Ocean',
@@ -36,6 +37,7 @@ const LEG_TYPE_LABELS = {
     POST_SHIPMENT: 'Post-Shipment',
 }
 
+// Transport call type labels
 const TRANSPORT_CALL_TYPE_LABELS = {
     PORT_OF_LOADING: 'Port of Loading',
     PORT_OF_DESTINATION: 'Port of Destination',
@@ -45,7 +47,7 @@ const TRANSPORT_CALL_TYPE_LABELS = {
     DEPOT_RETURN_LOCATION: 'Depot Return',
 }
 
-// ─── SVG Symbols ──────────────────────────────────────────────────────────────
+// Icons
 
 function TransportIcon() {
     return (
@@ -135,7 +137,7 @@ const EVENT_TYPE_LABEL = {
     SHIPMENT: 'Shipment Event',
 }
 
-// Light mode color scheme
+// color scheme
 const DOT_COLORS = {
     TRANSPORT: '#3b82f6',
     EQUIPMENT: '#10b981',
@@ -160,7 +162,7 @@ const SELECTED_GLOW = {
     SHIPMENT: '0 0 16px rgba(139, 92, 246, 0.12), inset 0 1px 0 rgba(139, 92, 246, 0.08)',
 }
 
-// ─── Helpers ──────────────────────────────────────────────────────────────────
+// Helpers
 
 function getEventCode(event) {
     return (
@@ -198,7 +200,7 @@ function getModeIcon(mode) {
     return AnchorSvg
 }
 
-// ─── Component ────────────────────────────────────────────────────────────────
+// Component
 
 export default function DCSAView({ data, selectedIndex, onSelectEvent }) {
     const parsed = normalizeResponse(data)
@@ -213,7 +215,7 @@ export default function DCSAView({ data, selectedIndex, onSelectEvent }) {
 
     return (
         <div>
-            {/* Metadata Bar */}
+            {/* Metadata */}
             {parsed.metadata?.identifier && (
                 <div className="rounded-xl px-4 py-3 mb-4 text-xs" style={{
                     background: 'var(--bg-glass)',
@@ -242,7 +244,7 @@ export default function DCSAView({ data, selectedIndex, onSelectEvent }) {
                 </div>
             )}
 
-            {/* Summary Bar */}
+            {/* Event counts */}
             <div className="flex items-center gap-3 rounded-xl px-4 py-2.5 mb-5 text-xs flex-wrap" style={{
                 background: 'var(--bg-glass)',
                 border: '1px solid var(--border-glass)',
@@ -297,7 +299,7 @@ export default function DCSAView({ data, selectedIndex, onSelectEvent }) {
                         <div key={idx} className="flex gap-3 relative" style={{
                             animation: `slideUp 0.4s ease-out ${idx * 0.05}s both`,
                         }}>
-                            {/* Dot + Line */}
+                            {/* Timeline dot */}
                             <div className="flex flex-col items-center">
                                 <div
                                     className="w-3 h-3 rounded-full mt-2 shrink-0 transition-all duration-300"
@@ -314,7 +316,7 @@ export default function DCSAView({ data, selectedIndex, onSelectEvent }) {
                                 )}
                             </div>
 
-                            {/* Event Card */}
+                            {/* Card */}
                             <button
                                 onClick={() => onSelectEvent(isSelected ? null : idx)}
                                 className="mb-2 flex-1 min-w-0 text-left rounded-xl px-4 py-3 transition-all duration-300 cursor-pointer"
@@ -336,7 +338,7 @@ export default function DCSAView({ data, selectedIndex, onSelectEvent }) {
                                     }
                                 }}
                             >
-                                {/* Row 1: Icon + Type + Code Badge */}
+                                {/* Type + code */}
                                 <div className="flex items-center gap-2 mb-1">
                                     <TypeIcon />
                                     <span className="text-xs font-medium" style={{ color: 'var(--text-muted)' }}>{typeLabel}</span>
@@ -358,7 +360,7 @@ export default function DCSAView({ data, selectedIndex, onSelectEvent }) {
                                     </div>
                                 )}
 
-                                {/* Classifier + Leg */}
+                                {/* Classifier / leg info */}
                                 <div className="flex items-center gap-3 text-xs mb-1.5 flex-wrap" style={{ color: 'var(--text-muted)' }}>
                                     {event.eventClassifierCode && (
                                         <span>
@@ -389,7 +391,7 @@ export default function DCSAView({ data, selectedIndex, onSelectEvent }) {
                                     )}
                                 </div>
 
-                                {/* Date/Time */}
+                                {/* Timestamp */}
                                 {dateTime && (
                                     <div className="flex items-center gap-1.5 text-sm mb-1" style={{ color: 'var(--text-secondary)' }}>
                                         <CalendarSvg />
@@ -397,7 +399,7 @@ export default function DCSAView({ data, selectedIndex, onSelectEvent }) {
                                     </div>
                                 )}
 
-                                {/* Location + Locode */}
+                                {/* Location */}
                                 {(location || locode) && (
                                     <div className="flex items-center gap-1.5 text-xs" style={{ color: 'var(--text-secondary)' }}>
                                         <LocationPin />
@@ -415,7 +417,7 @@ export default function DCSAView({ data, selectedIndex, onSelectEvent }) {
                                     </div>
                                 )}
 
-                                {/* Vessel + Mode */}
+                                {/* Vessel / transport mode */}
                                 {(vesselName || voyage || mode) && (
                                     <div className="flex items-center gap-1.5 text-xs mt-0.5" style={{ color: 'var(--text-muted)' }}>
                                         {ModeIcon && <ModeIcon />}
@@ -427,7 +429,7 @@ export default function DCSAView({ data, selectedIndex, onSelectEvent }) {
                                     </div>
                                 )}
 
-                                {/* Equipment info */}
+                                {/* Container details */}
                                 {event.equipmentReference && (
                                     <div className="flex items-center gap-2 text-xs mt-1 pt-1" style={{ color: 'var(--text-muted)', borderTop: '1px solid var(--border-glass)' }}>
                                         <span>Container: <span style={{ color: 'var(--text-secondary)', fontWeight: 500 }}>{event.equipmentReference}</span></span>
