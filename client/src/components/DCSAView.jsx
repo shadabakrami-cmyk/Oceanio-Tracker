@@ -202,8 +202,8 @@ function getModeIcon(mode) {
 
 // Component
 
-export default function DCSAView({ data, selectedIndex, onSelectEvent }) {
-    const parsed = normalizeResponse(data)
+export default function DCSAView({ data, selectedIndex, onSelectEvent, containerFilter = null }) {
+    const parsed = normalizeResponse(data, containerFilter)
 
     if (parsed.totalEvents === 0) {
         return (

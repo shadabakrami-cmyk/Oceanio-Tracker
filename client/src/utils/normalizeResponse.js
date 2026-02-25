@@ -212,23 +212,52 @@ function extractMetadata(data) {
     }
 }
 
+// ─── Container Extraction ──────────────────────────────────────────────────────
+
+/** Extract per-container info from the Oceanio response */
+function extractContainers(data) {
+    if (!data || !Array.isArray(data.containers)) return []
+    return data.containers.map((c) => {
+        const events = Array.isArray(c.events) ? c.events : []
+        const latestEvent = events.length > 0 ? events[events.length - 1] : null
+        return {
+            equipmentReference: c.equipmentReference || c.containerNumber || null,
+            eventCount: events.length,
+            latestStatus: latestEvent?.eventDescription || latestEvent?.transportEventTypeCode || latestEvent?.equipmentEventTypeCode || null,
+            latestDate: latestEvent?.eventDateTime || latestEvent?.eventDatetime || null,
+        }
+    })
+}
+
 // ─── Main Export ───────────────────────────────────────────────────────────────
 
 /**
  * @param {any} rawResponse  — raw JSON from Oceanio API
  * @returns {{ totalEvents, transportEvents, equipmentEvents, shipmentEvents, allEvents, metadata }}
  */
-export function normalizeResponse(rawResponse) {
+export function normalizeResponse(rawResponse, containerFilter = null) {
     // 1. Convert everything to camelCase so the rest of the pipeline is consistent
     const camel = deepCamelCase(rawResponse)
 
     // 2. Extract top-level metadata
     const metadata = extractMetadata(camel)
 
-    // 3. Find the events array no matter the envelope
-    const rawEvents = extractEventsArray(camel)
+    // 3. Extract container list (for BL/booking responses)
+    const containers = extractContainers(camel)
 
-    // 4. Normalize every event to DCSA standard shape
+    // 4. Find the events array — optionally filtered to a single container
+    let rawEvents
+    if (containerFilter && Array.isArray(camel.containers)) {
+        // Find the specific container and use only its events
+        const target = camel.containers.find(
+            (c) => (c.equipmentReference || c.containerNumber) === containerFilter
+        )
+        rawEvents = target && Array.isArray(target.events) ? target.events : []
+    } else {
+        rawEvents = extractEventsArray(camel)
+    }
+
+    // 5. Normalize every event to DCSA standard shape
     const allEvents = rawEvents.map(normalizeEvent)
 
     return {
@@ -238,5 +267,6 @@ export function normalizeResponse(rawResponse) {
         shipmentEvents: allEvents.filter((e) => e.eventType === 'SHIPMENT'),
         allEvents,
         metadata,
+        containers,
     }
 }
